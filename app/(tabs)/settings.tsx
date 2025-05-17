@@ -76,7 +76,11 @@ export default function SettingsScreen() {
       <ThemedView style={{ display: "flex", gap: 4 }}>
         <ThemedText type={"subtitle"}>Server</ThemedText>
         <TextInput value={serverAddress} onChangeText={setServerAddress} />
-        <TextInput inputMode={"numeric"} value={serverPort} />
+        <TextInput
+          inputMode={"numeric"}
+          value={serverPort}
+          onChangeText={setServerPort}
+        />
       </ThemedView>
       <ThemedView style={{ display: "flex", gap: 4 }}>
         <ThemedText type={"subtitle"}>Data</ThemedText>
