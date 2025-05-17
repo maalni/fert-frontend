@@ -121,8 +121,8 @@ export const ScanCamera = ({ onMountError }: CameraProps) => {
       allergyResultSheetRef.current?.present(responseJson);
     } catch (e) {
       console.log("Request failed", e);
-      setIsWorking(false);
     }
+    setIsWorking(false);
   };
 
   const handleAllergyResultSheetClose = () => {
