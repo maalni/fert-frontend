@@ -1,12 +1,12 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useEffect, useRef, useState } from "react";
-import { useIsFocused, useScrollToTop } from "@react-navigation/native";
+import { useRef } from "react";
+import { useScrollToTop } from "@react-navigation/native";
 import { ContainerStyles } from "@/constants/Styles";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { View } from "react-native";
 import { Chip } from "@/components/Chip";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useMMKVObject } from "react-native-mmkv";
 
 export type Allergies =
   | "milk"
@@ -21,37 +21,24 @@ export type Allergies =
 
 export default function AllergieScreen() {
   const ref = useRef(null);
-  const isFocused = useIsFocused();
-  const [allergies, setAllergies] = useState<Allergies[]>([]);
+  const [allergies, setAllergies] = useMMKVObject<Allergies[]>("allergies");
 
   useScrollToTop(ref);
-
-  useEffect(() => {
-    AsyncStorage.getItem("allergies", (error, result) => {
-      if (!error && result) {
-        const allergies: Allergies[] = JSON.parse(result);
-        setAllergies(allergies);
-      }
-    });
-  }, [isFocused]);
 
   const handleAllergySelection = (
     allergy: Allergies,
     hasBeenSelected: boolean,
   ) => {
-    let newAA: Allergies[];
+    let newAllergies: Allergies[];
+    let temp = allergies !== undefined ? allergies : [];
 
     if (hasBeenSelected) {
-      newAA = [...allergies, allergy];
+      newAllergies = [...temp, allergy];
     } else {
-      newAA = allergies.filter((all) => all !== allergy);
+      newAllergies = temp.filter((all) => all !== allergy);
     }
 
-    AsyncStorage.setItem("allergies", JSON.stringify(newAA), (error) => {
-      if (!error) {
-        setAllergies(newAA);
-      }
-    });
+    setAllergies(newAllergies);
   };
 
   return (
@@ -82,7 +69,7 @@ export default function AllergieScreen() {
       >
         <Chip
           type={"select"}
-          isSelected={allergies.includes("milk")}
+          isSelected={allergies?.includes("milk")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("milk", hasBeenSelected);
           }}
@@ -91,7 +78,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("eggs")}
+          isSelected={allergies?.includes("eggs")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("eggs", hasBeenSelected);
           }}
@@ -100,7 +87,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("fish")}
+          isSelected={allergies?.includes("fish")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("fish", hasBeenSelected);
           }}
@@ -109,7 +96,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("shellfish")}
+          isSelected={allergies?.includes("shellfish")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("shellfish", hasBeenSelected);
           }}
@@ -118,7 +105,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("treeNuts")}
+          isSelected={allergies?.includes("treeNuts")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("treeNuts", hasBeenSelected);
           }}
@@ -127,7 +114,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("peanuts")}
+          isSelected={allergies?.includes("peanuts")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("peanuts", hasBeenSelected);
           }}
@@ -136,7 +123,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("wheat")}
+          isSelected={allergies?.includes("wheat")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("wheat", hasBeenSelected);
           }}
@@ -145,7 +132,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("soybeans")}
+          isSelected={allergies?.includes("soybeans")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("soybeans", hasBeenSelected);
           }}
@@ -154,7 +141,7 @@ export default function AllergieScreen() {
         </Chip>
         <Chip
           type={"select"}
-          isSelected={allergies.includes("sesame")}
+          isSelected={allergies?.includes("sesame")}
           onSelect={(hasBeenSelected) => {
             handleAllergySelection("sesame", hasBeenSelected);
           }}

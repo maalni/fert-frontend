@@ -17,13 +17,14 @@ export const ThemedButton = ({
   children,
   ...otherProps
 }: PropsWithChildren<ButtonProps>) => {
-  const { primary, onPrimary } = useTheme();
+  const { primary, onPrimary, surfaceContainer, onSurfaceVariant } = useTheme();
 
   return (
     <Pressable
       style={[
         {
-          backgroundColor: primary,
+          backgroundColor:
+            otherProps.disabled === true ? surfaceContainer : primary,
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -36,9 +37,19 @@ export const ThemedButton = ({
       {...otherProps}
     >
       {icon !== undefined && (
-        <MaterialIcons color={onPrimary} name={icon} size={20} />
+        <MaterialIcons
+          color={otherProps.disabled === true ? onSurfaceVariant : onPrimary}
+          name={icon}
+          size={20}
+        />
       )}
-      <ThemedText style={{ color: onPrimary }}>{children}</ThemedText>
+      <ThemedText
+        style={{
+          color: otherProps.disabled === true ? onSurfaceVariant : onPrimary,
+        }}
+      >
+        {children}
+      </ThemedText>
     </Pressable>
   );
 };

@@ -12,6 +12,7 @@ import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
 import { ScanCamera } from "@/components/ScanCamera";
+import { AllergyResultSheet } from "@/components/AllergyResultSheet";
 
 export default function HomeScreen() {
   const { onSurfaceVariant } = useTheme();
@@ -19,6 +20,7 @@ export default function HomeScreen() {
   const isFocused = useIsFocused();
   const ref = useRef(null);
   const translateSheetRef = useRef<BottomSheetModal>(null);
+  const allergyResultSheetRef = useRef<BottomSheetModal>(null);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -51,6 +53,19 @@ export default function HomeScreen() {
     }
   };
 
+  const handleAllergyResultSheetClose = () => {
+    allergyResultSheetRef.current?.dismiss();
+  };
+
+  const handlePhoto = (photo: {
+    base64: string;
+    uri: string;
+    height: number;
+    width: number;
+  }) => {
+    allergyResultSheetRef.current?.present(photo);
+  };
+
   useScrollToTop(ref);
 
   return (
@@ -70,7 +85,7 @@ export default function HomeScreen() {
       </ThemedView>
       <ThemedView style={{ flex: 1, gap: 20 }}>
         {isFocused && hasPermission?.status === "granted" && (
-          <ScanCamera onMountError={handleError} />
+          <ScanCamera onPhoto={handlePhoto} onMountError={handleError} />
         )}
         {hasPermission?.status !== "granted" && (
           <View
@@ -113,6 +128,10 @@ export default function HomeScreen() {
         </ThemedButton>
       </ThemedView>
       <TranslateSheet ref={translateSheetRef} />
+      <AllergyResultSheet
+        ref={allergyResultSheetRef}
+        onFeedback={handleAllergyResultSheetClose}
+      />
     </ThemedScrollView>
   );
 }

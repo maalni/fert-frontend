@@ -10,34 +10,20 @@ import { useTheme } from "@/hooks/useTheme";
 import { Pressable, View } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Picker } from "@react-native-picker/picker";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Allergies } from "@/app/(tabs)/allergies";
 import { ThemedButton } from "@/components/Button";
 import { router } from "expo-router";
 import { AllergyTranslations } from "@/constants/Translations";
+import { useMMKVObject } from "react-native-mmkv";
 
 // eslint-disable-next-line react/display-name
 export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
   const { surfaceContainer, onSurfaceVariant } = useTheme();
   const bottomSheetModal = useBottomSheetModal();
-  const [allergies, setAllergies] = useState<Allergies[]>([]);
+  const [allergies, _s] = useMMKVObject<Allergies[]>("allergies");
   const [targetLanguage, setTargetLanguage] = useState<
     "chinese" | "korean" | "german"
   >("chinese");
-
-  const updateAllergies = async (index: number) => {
-    if (index !== 0) {
-      return;
-    }
-
-    const allergiesString = await AsyncStorage.getItem("allergies");
-    if (allergiesString === null) {
-      return;
-    }
-
-    const allergiess: Allergies[] = JSON.parse(allergiesString);
-    setAllergies(allergiess);
-  };
 
   const handleClose = () => {
     bottomSheetModal.dismissAll();
@@ -55,7 +41,6 @@ export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
       handleIndicatorStyle={{ backgroundColor: onSurfaceVariant }}
       backgroundStyle={{ backgroundColor: surfaceContainer }}
       enableDismissOnClose
-      onChange={updateAllergies}
       backdropComponent={(props) => (
         <BottomSheetBackdrop
           {...{
@@ -88,7 +73,7 @@ export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
             <MaterialIcons name="cancel" size={24} color={onSurfaceVariant} />
           </Pressable>
         </View>
-        {allergies.length > 0 && (
+        {allergies !== undefined && allergies.length > 0 && (
           <>
             <Picker
               mode={"dropdown"}
@@ -101,8 +86,7 @@ export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
             </Picker>
             <ThemedText>
               {AllergyTranslations[targetLanguage].start}
-              {allergies.map((allergy, index) => {
-                console.log(allergies.length - 1 === index);
+              {allergies?.map((allergy, index) => {
                 return (
                   AllergyTranslations[targetLanguage][allergy] +
                   (allergies.length - 2 > index ? ", " : "") +
@@ -115,7 +99,7 @@ export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
             </ThemedText>
           </>
         )}
-        {allergies.length === 0 && (
+        {(allergies === undefined || allergies.length === 0) && (
           <>
             <ThemedText>No allergies selected</ThemedText>
             <ThemedButton type={"small"} onPress={handlePress}>

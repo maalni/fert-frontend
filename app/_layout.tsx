@@ -15,18 +15,21 @@ import {
   OpenSans_600SemiBold,
   OpenSans_700Bold,
 } from "@expo-google-fonts/open-sans";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 import { ThemedSafeAreaView } from "@/components/ThemedSafeAreaView";
 import { StyleSheet } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { BottomSheetModalProvider } from "@gorhom/bottom-sheet";
+import { MMKV } from "react-native-mmkv";
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
+export const storage = new MMKV();
+
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded, error] = useFonts({
+  const [loaded, _] = useFonts({
     OpenSans_400Regular,
     OpenSans_500Medium,
     OpenSans_600SemiBold,
@@ -34,12 +37,12 @@ export default function RootLayout() {
   });
 
   useEffect(() => {
-    if (loaded || error) {
+    if (loaded) {
       SplashScreen.hideAsync();
     }
-  }, [loaded, error]);
+  }, [loaded]);
 
-  if (!loaded && !error) {
+  if (!loaded) {
     return null;
   }
 

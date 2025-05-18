@@ -1,27 +1,25 @@
 import { CameraMountError, CameraView } from "expo-camera";
 import { useRef, useState } from "react";
-import { ActivityIndicator, Pressable, View } from "react-native";
+import { Pressable, View } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
-import { AllergyResultSheet } from "@/components/AllergyResultSheet";
-import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import { ThemedView } from "@/components/ThemedView";
 import * as ImagePicker from "expo-image-picker";
 import { ThemedText } from "@/components/ThemedText";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 
 type CameraProps = {
+  onPhoto: (photo: {
+    base64: string;
+    uri: string;
+    height: number;
+    width: number;
+  }) => void;
   onMountError: (error: CameraMountError) => void;
 };
 
-type BackendResponse = {
-  name: string;
-  detectedAllergies: string[];
-};
-
-export const ScanCamera = ({ onMountError }: CameraProps) => {
+export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
   const ref = useRef<CameraView>(null);
-  const allergyResultSheetRef = useRef<BottomSheetModal>(null);
+
   const { primary, onPrimary } = useTheme();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
@@ -43,7 +41,13 @@ export const ScanCamera = ({ onMountError }: CameraProps) => {
       return;
     }
 
-    await processImage(pic.base64, pic.height, pic.width);
+    onPhoto({
+      base64: pic.base64,
+      uri: pic.uri,
+      height: pic.height,
+      width: pic.width,
+    });
+    setIsWorking(false);
   };
 
   const pickImage = async () => {
@@ -60,73 +64,13 @@ export const ScanCamera = ({ onMountError }: CameraProps) => {
       return;
     }
 
-    await processImage(
-      result.assets[0].base64,
-      result.assets[0].height,
-      result.assets[0].width,
-    );
-  };
-
-  const processImage = async (
-    base64: string,
-    height: number,
-    width: number,
-  ) => {
-    const payload = {
-      data: base64,
-      height: height,
-      width: width,
-    };
-
-    try {
-      const settingsString = await AsyncStorage.getItem("settings");
-      if (settingsString === null) {
-        setIsWorking(false);
-        return;
-      }
-
-      const settings = JSON.parse(settingsString);
-
-      const url = `https://${settings.server.address}:${settings.server.port}/`;
-      console.log("Sending image to: " + url);
-      const response = await fetch(url, {
-        method: "POST",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const responseJson = (await response.json()) as BackendResponse;
-
-      const scanHistoryString = await AsyncStorage.getItem("scanHistory");
-      if (scanHistoryString === null) {
-        setIsWorking(false);
-        return;
-      }
-
-      const scanHistory = JSON.parse(scanHistoryString);
-      await AsyncStorage.setItem(
-        "scanHistory",
-        JSON.stringify([
-          ...scanHistory,
-          {
-            name: responseJson.name,
-            detectedAllergies: responseJson.detectedAllergies,
-          },
-        ]),
-      );
-
-      allergyResultSheetRef.current?.present(responseJson);
-    } catch (e) {
-      console.log("Request failed", e);
-    }
+    onPhoto({
+      base64: result.assets[0].base64,
+      uri: result.assets[0].uri,
+      height: result.assets[0].height,
+      width: result.assets[0].width,
+    });
     setIsWorking(false);
-  };
-
-  const handleAllergyResultSheetClose = () => {
-    allergyResultSheetRef.current?.dismiss();
   };
 
   return (
@@ -147,7 +91,7 @@ export const ScanCamera = ({ onMountError }: CameraProps) => {
           onCameraReady={() => setIsCameraReady(true)}
           onMountError={onMountError}
         >
-          {isCameraReady && !isWorking && (
+          {isCameraReady && (
             <View
               style={{
                 display: "flex",
@@ -216,24 +160,8 @@ export const ScanCamera = ({ onMountError }: CameraProps) => {
               </View>
             </View>
           )}
-          {isWorking && (
-            <View
-              style={{
-                display: "flex",
-                flex: 1,
-                justifyContent: "center",
-                alignItems: "center",
-              }}
-            >
-              <ActivityIndicator size={56} color={primary}></ActivityIndicator>
-            </View>
-          )}
         </CameraView>
       </ThemedView>
-      <AllergyResultSheet
-        ref={allergyResultSheetRef}
-        onFeedback={handleAllergyResultSheetClose}
-      />
     </>
   );
 };

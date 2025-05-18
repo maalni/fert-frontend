@@ -5,29 +5,23 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { Pressable } from "react-native";
 import { Chip } from "@/components/Chip";
 import { useTheme } from "@/hooks/useTheme";
-import { useEffect, useState } from "react";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useState } from "react";
+import { useMMKVObject } from "react-native-mmkv";
 
 type ScanHistoryEntryProps = {
   name: string;
+  img: string;
   detectedAllergies: string[];
 };
 
 export default function ScanHistoryEntry({
   name,
+  img,
   detectedAllergies,
 }: ScanHistoryEntryProps) {
   const { primary, onPrimary } = useTheme();
-  const [allergies, setAllergies] = useState<string[]>([]);
-
-  useEffect(() => {
-    AsyncStorage.getItem("allergies", (error, result) => {
-      if (!error && result) {
-        const allergiess = JSON.parse(result);
-        setAllergies(allergiess);
-      }
-    });
-  }, []);
+  const [allergies, _] = useMMKVObject<string[]>("allergies");
+  const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
     <Pressable
@@ -46,9 +40,14 @@ export default function ScanHistoryEntry({
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          overflow: "hidden",
         }}
+        source={img}
+        onLoad={() => setIsImageLoaded(true)}
       >
-        <MaterialIcons name="photo-camera" size={48} color={onPrimary} />
+        {!isImageLoaded && (
+          <MaterialIcons name="photo-camera" size={48} color={onPrimary} />
+        )}
       </ImageBackground>
       <ThemedView
         style={{
@@ -72,7 +71,7 @@ export default function ScanHistoryEntry({
             <Chip
               key={allergy}
               type={"normal"}
-              isSelected={allergies.includes(allergy)}
+              isSelected={allergies?.includes(allergy)}
             >
               {allergy}
             </Chip>

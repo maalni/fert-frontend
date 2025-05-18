@@ -1,36 +1,27 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
-import { useIsFocused, useScrollToTop } from "@react-navigation/native";
-import { useEffect, useRef, useState } from "react";
+import { useScrollToTop } from "@react-navigation/native";
+import { useRef } from "react";
 import { ContainerStyles } from "@/constants/Styles";
 import ScanHistoryEntry from "@/components/ScanHistoryEntry";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedButton } from "@/components/Button";
 import { View } from "react-native";
 import { router } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { Allergies } from "@/app/(tabs)/allergies";
+import { useMMKVObject } from "react-native-mmkv";
 
 export default function RecentScreen() {
   const ref = useRef(null);
-  const isFocused = useIsFocused();
   const { onSurfaceVariant } = useTheme();
-  const [scanHistory, setScanHistory] = useState<
-    { name: string; detectedAllergies: Allergies[] }[]
-  >([]);
+  const [scanHistory, _] =
+    useMMKVObject<
+      { name: string; img: string; detectedAllergies: Allergies[] }[]
+    >("scanHistory");
 
   useScrollToTop(ref);
-
-  useEffect(() => {
-    AsyncStorage.getItem("scanHistory", (error, result) => {
-      if (!error && result) {
-        const scanHistories = JSON.parse(result);
-        setScanHistory(scanHistories);
-      }
-    });
-  }, [isFocused]);
 
   const handleScanNavigationPress = () => {
     router.navigate("/");
@@ -47,7 +38,7 @@ export default function RecentScreen() {
         },
       ]}
     >
-      {scanHistory.length > 0 && (
+      {scanHistory !== undefined && scanHistory.length > 0 && (
         <>
           <ThemedView style={ContainerStyles.title}>
             <ThemedText type="title">Recent scans</ThemedText>
@@ -56,12 +47,18 @@ export default function RecentScreen() {
             </ThemedText>
           </ThemedView>
           <ThemedView style={{ display: "flex", gap: 4 }}>
-            <ThemedText type="subtitle">May 10</ThemedText>
+            <ThemedText type="subtitle">
+              {new Date().toLocaleString("en", {
+                month: "long",
+                day: "2-digit",
+              })}
+            </ThemedText>
             <ThemedView style={{ display: "flex", gap: 8 }}>
               {scanHistory.map((entry) => (
                 <ScanHistoryEntry
                   key={`${entry.name}`}
                   name={entry.name}
+                  img={entry.img}
                   detectedAllergies={entry.detectedAllergies}
                 />
               ))}
@@ -69,7 +66,7 @@ export default function RecentScreen() {
           </ThemedView>
         </>
       )}
-      {scanHistory.length === 0 && (
+      {(scanHistory === undefined || scanHistory.length === 0) && (
         <View
           style={{
             display: "flex",
