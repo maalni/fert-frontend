@@ -42,7 +42,7 @@ export default function RecentScreen() {
         <>
           <ThemedView style={ContainerStyles.title}>
             <ThemedText type="title">Recent scans</ThemedText>
-            <ThemedText>
+            <ThemedText type={"defaultSemiBold"}>
               Review your recent food scans and their identified allergens.
             </ThemedText>
           </ThemedView>
@@ -73,7 +73,7 @@ export default function RecentScreen() {
             flex: 1,
             justifyContent: "center",
             alignItems: "center",
-            gap: 8,
+            gap: 16,
             paddingHorizontal: 40,
           }}
         >
@@ -82,11 +82,22 @@ export default function RecentScreen() {
             size={56}
             color={onSurfaceVariant}
           />
-          <ThemedText type={"subtitle"}>Scan to unlock your history</ThemedText>
-          <ThemedText style={{ textAlign: "justify" }}>
-            You need to scan food items first in order to view your scan
-            history.
-          </ThemedText>
+          <View
+            style={{
+              display: "flex",
+              justifyContent: "center",
+              alignItems: "center",
+              gap: 4,
+            }}
+          >
+            <ThemedText type={"subtitle"}>
+              Scan to unlock your history
+            </ThemedText>
+            <ThemedText style={{ textAlign: "justify" }}>
+              You need to scan food items first in order to view your scan
+              history.
+            </ThemedText>
+          </View>
           <ThemedButton
             type={"small"}
             onPress={handleScanNavigationPress}

@@ -13,7 +13,7 @@ import { Allergies } from "@/app/(tabs)/allergies";
 
 export default function SettingsScreen() {
   const ref = useRef(null);
-  const { error } = useTheme();
+  const { error, onSurfaceVariant } = useTheme();
   const [serverAddress, setServerAddress] = useMMKVString("serverAddress");
   const [serverPort, setServerPort] = useMMKVString("serverPort");
   const [scanHistory, setScanHistory] = useMMKVObject<
@@ -32,10 +32,10 @@ export default function SettingsScreen() {
   };
 
   const handleAddScansButtonPress = async () => {
-    const test = scanHistory !== undefined ? scanHistory : [];
+    const temp = scanHistory !== undefined ? scanHistory : [];
 
     setScanHistory([
-      ...test,
+      ...temp,
       {
         name: "Bernd das Brot",
         img: "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRYks8yaRJ7sIZ5x2cIt-4qJ2qdzyGOZDmGLFCShCyUpMnNGBIOjXLGKZpZdwNE_Hh1RkOqHlhDmDscUG8XUjTthOSBt1xBIf7ljBiK5Sw",
@@ -60,11 +60,16 @@ export default function SettingsScreen() {
       </ThemedView>
       <ThemedView style={{ display: "flex", gap: 4 }}>
         <ThemedText type={"subtitle"}>Server</ThemedText>
-        <TextInput value={serverAddress} onChangeText={setServerAddress} />
+        <TextInput
+          value={serverAddress}
+          onChangeText={setServerAddress}
+          style={{ color: onSurfaceVariant }}
+        />
         <TextInput
           inputMode={"numeric"}
           value={serverPort}
           onChangeText={setServerPort}
+          style={{ color: onSurfaceVariant }}
         />
       </ThemedView>
       <ThemedView style={{ display: "flex", gap: 4 }}>

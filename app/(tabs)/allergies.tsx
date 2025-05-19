@@ -7,6 +7,8 @@ import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { View } from "react-native";
 import { Chip } from "@/components/Chip";
 import { useMMKVObject } from "react-native-mmkv";
+import { useTheme } from "@/hooks/useTheme";
+import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 export type Allergies =
   | "milk"
@@ -21,6 +23,7 @@ export type Allergies =
 
 export default function AllergieScreen() {
   const ref = useRef(null);
+  const { errorContainer, onErrorContainer } = useTheme();
   const [allergies, setAllergies] = useMMKVObject<Allergies[]>("allergies");
 
   useScrollToTop(ref);
@@ -54,7 +57,7 @@ export default function AllergieScreen() {
     >
       <ThemedView style={ContainerStyles.title}>
         <ThemedText type="title">Your allergies</ThemedText>
-        <ThemedText>
+        <ThemedText type={"defaultSemiBold"}>
           Track and prioritize your allergies with specific highlights for
           better management.
         </ThemedText>
@@ -62,6 +65,7 @@ export default function AllergieScreen() {
       <View
         style={{
           display: "flex",
+          flex: 1,
           flexDirection: "row",
           gap: 8,
           flexWrap: "wrap",
@@ -149,6 +153,25 @@ export default function AllergieScreen() {
           Sesame
         </Chip>
       </View>
+      {allergies === undefined ||
+        (allergies.length === 0 && (
+          <View
+            style={{
+              backgroundColor: errorContainer,
+              paddingVertical: 12,
+              paddingHorizontal: 8,
+              borderRadius: 8,
+              display: "flex",
+              flexDirection: "row",
+              gap: 8,
+            }}
+          >
+            <MaterialIcons name={"error"} color={onErrorContainer} size={24} />
+            <ThemedText style={{ color: onErrorContainer }}>
+              Select at least one allergy
+            </ThemedText>
+          </View>
+        ))}
     </ThemedScrollView>
   );
 }

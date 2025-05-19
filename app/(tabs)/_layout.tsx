@@ -5,6 +5,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { BottomTabBarButtonProps } from "@react-navigation/bottom-tabs";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
+import { useMMKVBoolean } from "react-native-mmkv";
 
 export default function TabLayout() {
   const { surfaceContainer, onSurfaceVariant, secondaryContainer } = useTheme();
@@ -59,6 +60,8 @@ export default function TabLayout() {
     );
   };
 
+  const [isOnboarding, _] = useMMKVBoolean("isOnboarding");
+
   return (
     <Tabs
       screenOptions={{
@@ -70,6 +73,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: onSurfaceVariant,
         headerShown: false,
       }}
+      tabBar={isOnboarding === undefined ? () => null : undefined}
     >
       <Tabs.Screen
         name="index"

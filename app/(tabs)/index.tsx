@@ -13,6 +13,8 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
 import { ScanCamera } from "@/components/ScanCamera";
 import { AllergyResultSheet } from "@/components/AllergyResultSheet";
+import { useMMKVBoolean } from "react-native-mmkv";
+import OnboardingScreen from "@/components/onboarding/screen";
 
 export default function HomeScreen() {
   const { onSurfaceVariant } = useTheme();
@@ -21,6 +23,7 @@ export default function HomeScreen() {
   const ref = useRef(null);
   const translateSheetRef = useRef<BottomSheetModal>(null);
   const allergyResultSheetRef = useRef<BottomSheetModal>(null);
+  const [isOnboarding, _] = useMMKVBoolean("isOnboarding");
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
@@ -68,6 +71,10 @@ export default function HomeScreen() {
 
   useScrollToTop(ref);
 
+  if (isOnboarding === undefined) {
+    return <OnboardingScreen />;
+  }
+
   return (
     <ThemedScrollView
       ref={ref}
@@ -81,7 +88,9 @@ export default function HomeScreen() {
     >
       <ThemedView style={ContainerStyles.title}>
         <ThemedText type="title">Scan your food</ThemedText>
-        <ThemedText>Scan your food to detect potential allergens.</ThemedText>
+        <ThemedText type={"defaultSemiBold"}>
+          Scan your food to detect potential allergens.
+        </ThemedText>
       </ThemedView>
       <ThemedView style={{ flex: 1, gap: 20 }}>
         {isFocused && hasPermission?.status === "granted" && (
