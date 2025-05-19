@@ -23,7 +23,7 @@ export default function HomeScreen() {
   const ref = useRef(null);
   const translateSheetRef = useRef<BottomSheetModal>(null);
   const allergyResultSheetRef = useRef<BottomSheetModal>(null);
-  const [isOnboarding, _] = useMMKVBoolean("isOnboarding");
+  const [isOnboarding, _setIsOnboarding] = useMMKVBoolean("isOnboarding");
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {

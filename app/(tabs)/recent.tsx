@@ -16,7 +16,7 @@ import { useMMKVObject } from "react-native-mmkv";
 export default function RecentScreen() {
   const ref = useRef(null);
   const { onSurfaceVariant } = useTheme();
-  const [scanHistory, _] =
+  const [scanHistory, _setScanHistory] =
     useMMKVObject<
       { name: string; img: string; detectedAllergies: Allergies[] }[]
     >("scanHistory");

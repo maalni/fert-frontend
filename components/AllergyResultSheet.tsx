@@ -31,9 +31,9 @@ export const AllergyResultSheet = forwardRef<
   const { surfaceContainer, onSurfaceVariant, green, yellow, red, primary } =
     useTheme();
   const bottomSheetModal = useBottomSheetModal();
-  const [serverAddress, _n] = useMMKVString("serverAddress");
-  const [serverPort, _s] = useMMKVString("serverPort");
-  const [allergies, _a] = useMMKVObject<string[]>("allergies");
+  const [serverAddress, _setServerAddress] = useMMKVString("serverAddress");
+  const [serverPort, _setServerPort] = useMMKVString("serverPort");
+  const [allergies, _setAllergies] = useMMKVObject<string[]>("allergies");
   const [scanHistory, setScanHistory] =
     useMMKVObject<{ name: string; img: string; detectedAllergies: string[] }[]>(
       "scanHistory",
@@ -87,7 +87,7 @@ export const AllergyResultSheet = forwardRef<
       };
 
       try {
-        const url = `https://${serverAddress}:${serverPort}/`;
+        const url = `http://${serverAddress}:${serverPort}/`;
         console.log("Sending image to: " + url);
         const response = await fetch(url, {
           method: "POST",
@@ -99,6 +99,8 @@ export const AllergyResultSheet = forwardRef<
         });
 
         const responseJson = (await response.json()) as BackendResponse;
+
+        console.log(responseJson);
 
         const temp = scanHistory !== undefined ? scanHistory : [];
 

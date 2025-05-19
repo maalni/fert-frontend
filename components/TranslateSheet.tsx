@@ -17,10 +17,10 @@ import { AllergyTranslations } from "@/constants/Translations";
 import { useMMKVObject } from "react-native-mmkv";
 
 // eslint-disable-next-line react/display-name
-export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_, ref) => {
+export const TranslateSheet = forwardRef<BottomSheetModal, {}>((_props, ref) => {
   const { surfaceContainer, onSurfaceVariant } = useTheme();
   const bottomSheetModal = useBottomSheetModal();
-  const [allergies, _s] = useMMKVObject<Allergies[]>("allergies");
+  const [allergies, _setAllergies] = useMMKVObject<Allergies[]>("allergies");
   const [targetLanguage, setTargetLanguage] = useState<
     "chinese" | "korean" | "german"
   >("chinese");

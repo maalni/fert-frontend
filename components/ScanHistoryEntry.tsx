@@ -20,7 +20,7 @@ export default function ScanHistoryEntry({
   detectedAllergies,
 }: ScanHistoryEntryProps) {
   const { primary, onPrimary } = useTheme();
-  const [allergies, _] = useMMKVObject<string[]>("allergies");
+  const [allergies, _setAllergies] = useMMKVObject<string[]>("allergies");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (

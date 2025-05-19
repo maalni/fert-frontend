@@ -29,7 +29,7 @@ export const storage = new MMKV();
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  const [loaded, _] = useFonts({
+  const [loaded, _error] = useFonts({
     OpenSans_400Regular,
     OpenSans_500Medium,
     OpenSans_600SemiBold,

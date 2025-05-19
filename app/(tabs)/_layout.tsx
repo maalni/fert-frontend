@@ -60,7 +60,7 @@ export default function TabLayout() {
     );
   };
 
-  const [isOnboarding, _] = useMMKVBoolean("isOnboarding");
+  const [isOnboarding, _setIsOnboarding] = useMMKVBoolean("isOnboarding");
 
   return (
     <Tabs

@@ -7,7 +7,7 @@ import { Allergies } from "@/app/(tabs)/allergies";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 
 export default function OnboardingPage2() {
-  const [_, setIsOnboarding] = useMMKVBoolean("isOnboarding");
+  const [_isOnboarding, setIsOnboarding] = useMMKVBoolean("isOnboarding");
   const [allergies, setAllergies] = useMMKVObject<Allergies[]>("allergies");
 
   const handleAllergySelection = (
