@@ -21,11 +21,12 @@ export const TextStyles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
-    lineHeight: 32,
+    lineHeight: 42,
     fontFamily: "OpenSans_700Bold",
   },
   subtitle: {
     fontSize: 20,
+    lineHeight: 26,
     fontFamily: "OpenSans_700Bold",
   },
   link: {

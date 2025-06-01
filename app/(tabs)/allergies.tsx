@@ -9,36 +9,26 @@ import { Chip } from "@/components/Chip";
 import { useMMKVObject } from "react-native-mmkv";
 import { useTheme } from "@/hooks/useTheme";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-
-export type Allergies =
-  | "milk"
-  | "eggs"
-  | "fish"
-  | "shellfish"
-  | "treeNuts"
-  | "peanuts"
-  | "wheat"
-  | "soybeans"
-  | "sesame";
+import { Allergies, Allergy } from "@/types/Allergies";
+import { AllergyTranslations } from "@/constants/Translations";
 
 export default function AllergieScreen() {
   const ref = useRef(null);
   const { errorContainer, onErrorContainer } = useTheme();
-  const [allergies, setAllergies] = useMMKVObject<Allergies[]>("allergies");
+  const [allergies = [], setAllergies] = useMMKVObject<Allergy[]>("allergies");
 
   useScrollToTop(ref);
 
   const handleAllergySelection = (
-    allergy: Allergies,
+    allergy: Allergy,
     hasBeenSelected: boolean,
   ) => {
-    let newAllergies: Allergies[];
-    let temp = allergies !== undefined ? allergies : [];
+    let newAllergies: Allergy[];
 
     if (hasBeenSelected) {
-      newAllergies = [...temp, allergy];
+      newAllergies = [...allergies, allergy];
     } else {
-      newAllergies = temp.filter((all) => all !== allergy);
+      newAllergies = allergies.filter((all) => all !== allergy);
     }
 
     setAllergies(newAllergies);
@@ -71,107 +61,37 @@ export default function AllergieScreen() {
           flexWrap: "wrap",
         }}
       >
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("milk")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("milk", hasBeenSelected);
-          }}
-        >
-          Milk
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("eggs")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("eggs", hasBeenSelected);
-          }}
-        >
-          Eggs
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("fish")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("fish", hasBeenSelected);
-          }}
-        >
-          Fish
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("shellfish")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("shellfish", hasBeenSelected);
-          }}
-        >
-          Shellfish
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("treeNuts")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("treeNuts", hasBeenSelected);
-          }}
-        >
-          Tree nuts
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("peanuts")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("peanuts", hasBeenSelected);
-          }}
-        >
-          Peanuts
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("wheat")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("wheat", hasBeenSelected);
-          }}
-        >
-          Wheat
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("soybeans")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("soybeans", hasBeenSelected);
-          }}
-        >
-          Soybeans
-        </Chip>
-        <Chip
-          type={"select"}
-          isSelected={allergies?.includes("sesame")}
-          onSelect={(hasBeenSelected) => {
-            handleAllergySelection("sesame", hasBeenSelected);
-          }}
-        >
-          Sesame
-        </Chip>
-      </View>
-      {allergies === undefined ||
-        (allergies.length === 0 && (
-          <View
-            style={{
-              backgroundColor: errorContainer,
-              paddingVertical: 12,
-              paddingHorizontal: 8,
-              borderRadius: 8,
-              display: "flex",
-              flexDirection: "row",
-              gap: 8,
+        {Allergies.map((allergy) => (
+          <Chip
+            key={allergy}
+            type={"select"}
+            isSelected={allergies.includes(allergy)}
+            onSelect={(hasBeenSelected) => {
+              handleAllergySelection(allergy, hasBeenSelected);
             }}
           >
-            <MaterialIcons name={"error"} color={onErrorContainer} size={24} />
-            <ThemedText style={{ color: onErrorContainer }}>
-              Select at least one allergy
-            </ThemedText>
-          </View>
+            {AllergyTranslations.english[allergy]}
+          </Chip>
         ))}
+      </View>
+      {allergies.length === 0 && (
+        <View
+          style={{
+            backgroundColor: errorContainer,
+            paddingVertical: 12,
+            paddingHorizontal: 8,
+            borderRadius: 8,
+            display: "flex",
+            flexDirection: "row",
+            gap: 8,
+          }}
+        >
+          <MaterialIcons name={"error"} color={onErrorContainer} size={24} />
+          <ThemedText style={{ color: onErrorContainer }}>
+            Select at least one allergy
+          </ThemedText>
+        </View>
+      )}
     </ThemedScrollView>
   );
 }

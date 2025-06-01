@@ -4,25 +4,25 @@ import { useScrollToTop } from "@react-navigation/native";
 import { useRef } from "react";
 import { ContainerStyles } from "@/constants/Styles";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { ThemedButton } from "@/components/Button";
+import { ThemedButton } from "@/components/ThemedButton";
 import { TextInput } from "react-native";
 import { useTheme } from "@/hooks/useTheme";
 import { useMMKV } from "react-native-mmkv/src";
-import { useMMKVObject, useMMKVString } from "react-native-mmkv";
-import { Allergies } from "@/app/(tabs)/allergies";
+import { useMMKVNumber, useMMKVObject, useMMKVString } from "react-native-mmkv";
+import { ScanHistory } from "@/types/ScanHistory";
 
 export default function SettingsScreen() {
   const ref = useRef(null);
   const { error, onSurfaceVariant } = useTheme();
-  const [serverAddress, setServerAddress] = useMMKVString("serverAddress");
-  const [serverPort, setServerPort] = useMMKVString("serverPort");
-  const [scanHistory, setScanHistory] = useMMKVObject<
-    {
-      name: string;
-      img: string;
-      detectedAllergies: Allergies[];
-    }[]
-  >("scanHistory");
+  const [serverAddress = "localhost", setServerAddress] =
+    useMMKVString("serverAddress");
+  const [serverPort = "3000", setServerPort] = useMMKVString("serverPort");
+  const [positiveFeedback = 0, _setPositiveFeedback] =
+    useMMKVNumber("positiveFeedback");
+  const [negativeFeedback = 0, _setNegativeFeedback] =
+    useMMKVNumber("negativeFeedback");
+  const [scanHistory = [], setScanHistory] =
+    useMMKVObject<ScanHistory[]>("scanHistory");
   const mmkv = useMMKV();
 
   useScrollToTop(ref);
@@ -32,14 +32,13 @@ export default function SettingsScreen() {
   };
 
   const handleAddScansButtonPress = async () => {
-    const temp = scanHistory !== undefined ? scanHistory : [];
-
     setScanHistory([
-      ...temp,
+      ...scanHistory,
       {
-        name: "Bernd das Brot",
+        name: "Bernd das Brot ...",
         img: "https://encrypted-tbn3.gstatic.com/images?q=tbn:ANd9GcRYks8yaRJ7sIZ5x2cIt-4qJ2qdzyGOZDmGLFCShCyUpMnNGBIOjXLGKZpZdwNE_Hh1RkOqHlhDmDscUG8XUjTthOSBt1xBIf7ljBiK5Sw",
         detectedAllergies: ["wheat", "eggs", "milk"],
+        scanDate: new Date().toISOString(),
       },
     ]);
   };
@@ -74,6 +73,13 @@ export default function SettingsScreen() {
       </ThemedView>
       <ThemedView style={{ display: "flex", gap: 4 }}>
         <ThemedText type={"subtitle"}>Data</ThemedText>
+        <ThemedText>
+          {"positive feedback count: " + positiveFeedback}
+        </ThemedText>
+        <ThemedText>
+          {"negative feedback count: " + negativeFeedback}
+        </ThemedText>
+
         <ThemedButton
           style={{ flex: 1 }}
           type={"small"}

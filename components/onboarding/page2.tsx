@@ -1,26 +1,27 @@
 import { View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
-import { ThemedButton } from "@/components/Button";
+import { ThemedButton } from "@/components/ThemedButton";
 import { useMMKVBoolean, useMMKVObject } from "react-native-mmkv";
 import { Chip } from "@/components/Chip";
-import { Allergies } from "@/app/(tabs)/allergies";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
+import { AllergyTranslations } from "@/constants/Translations";
+import { Allergies, Allergy } from "@/types/Allergies";
 
 export default function OnboardingPage2() {
-  const [_isOnboarding, setIsOnboarding] = useMMKVBoolean("isOnboarding");
-  const [allergies, setAllergies] = useMMKVObject<Allergies[]>("allergies");
+  const [_isOnboarding = true, setIsOnboarding] =
+    useMMKVBoolean("isOnboarding");
+  const [allergies = [], setAllergies] = useMMKVObject<Allergy[]>("allergies");
 
   const handleAllergySelection = (
-    allergy: Allergies,
+    allergy: Allergy,
     hasBeenSelected: boolean,
   ) => {
-    let newAllergies: Allergies[];
-    let temp = allergies !== undefined ? allergies : [];
+    let newAllergies: Allergy[];
 
     if (hasBeenSelected) {
-      newAllergies = [...temp, allergy];
+      newAllergies = [...allergies, allergy];
     } else {
-      newAllergies = temp.filter((all) => all !== allergy);
+      newAllergies = allergies.filter((all) => all !== allergy);
     }
 
     setAllergies(newAllergies);
@@ -50,96 +51,29 @@ export default function OnboardingPage2() {
             flexWrap: "wrap",
           }}
         >
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("milk")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("milk", hasBeenSelected);
-            }}
-          >
-            Milk
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("eggs")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("eggs", hasBeenSelected);
-            }}
-          >
-            Eggs
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("fish")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("fish", hasBeenSelected);
-            }}
-          >
-            Fish
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("shellfish")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("shellfish", hasBeenSelected);
-            }}
-          >
-            Shellfish
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("treeNuts")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("treeNuts", hasBeenSelected);
-            }}
-          >
-            Tree nuts
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("peanuts")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("peanuts", hasBeenSelected);
-            }}
-          >
-            Peanuts
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("wheat")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("wheat", hasBeenSelected);
-            }}
-          >
-            Wheat
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("soybeans")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("soybeans", hasBeenSelected);
-            }}
-          >
-            Soybeans
-          </Chip>
-          <Chip
-            type={"select"}
-            isSelected={allergies?.includes("sesame")}
-            onSelect={(hasBeenSelected) => {
-              handleAllergySelection("sesame", hasBeenSelected);
-            }}
-          >
-            Sesame
-          </Chip>
+          {Allergies.map((allergy) => (
+            <Chip
+              key={allergy}
+              type={"select"}
+              isSelected={allergies.includes(allergy)}
+              onSelect={(hasBeenSelected) => {
+                handleAllergySelection(allergy, hasBeenSelected);
+              }}
+            >
+              {AllergyTranslations.english[allergy]}
+            </Chip>
+          ))}
         </View>
       </View>
-      <ThemedText style={{ textAlign: "center" }}>
-        Select at least one allergy
-      </ThemedText>
+      {allergies.length === 0 && (
+        <ThemedText style={{ textAlign: "center" }}>
+          Select at least one allergy
+        </ThemedText>
+      )}
       <ThemedButton
         type={"small"}
         icon="check"
-        disabled={allergies === undefined || allergies.length === 0}
+        disabled={allergies.length === 0}
         onPress={() => setIsOnboarding(false)}
       >
         Finish setup

@@ -1,5 +1,5 @@
 import { ThemedText } from "@/components/ThemedText";
-import { Pressable } from "react-native";
+import { Pressable, TextStyle, ViewStyle } from "react-native";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ComponentProps, PropsWithChildren } from "react";
 import { useTheme } from "@/hooks/useTheme";
@@ -9,6 +9,8 @@ type ChipProps = {
   type: "normal" | "select";
   isSelected?: boolean;
   onSelect?: (value: boolean) => void;
+  isSelectedViewStyle?: ViewStyle;
+  isSelectedTextStyle?: TextStyle;
 };
 
 export const Chip = ({
@@ -17,6 +19,8 @@ export const Chip = ({
   onSelect,
   children,
   isSelected,
+  isSelectedViewStyle,
+  isSelectedTextStyle,
 }: PropsWithChildren<ChipProps>) => {
   const { outlineVariant, onSurfaceVariant, secondaryContainer } = useTheme();
 
@@ -28,19 +32,24 @@ export const Chip = ({
 
   return (
     <Pressable
-      style={{
-        display: "flex",
-        flexDirection: "row",
-        borderWidth: 1,
-        borderRadius: 8,
-        borderColor: isSelected ? secondaryContainer : outlineVariant,
-        paddingHorizontal: 16,
-        height: 32,
-        gap: 8,
-        alignItems: "center",
-        justifyContent: "center",
-        backgroundColor: isSelected ? secondaryContainer : undefined,
-      }}
+      style={[
+        {
+          display: "flex",
+          flexDirection: "row",
+          borderWidth: 1,
+          borderRadius: 8,
+          borderColor: isSelected ? secondaryContainer : outlineVariant,
+          paddingHorizontal: 16,
+          height: 32,
+          gap: 8,
+          alignItems: "center",
+          justifyContent: "center",
+          backgroundColor: isSelected ? secondaryContainer : undefined,
+        },
+        isSelectedViewStyle !== undefined && isSelected
+          ? isSelectedViewStyle
+          : undefined,
+      ]}
       onPress={handlePress}
     >
       {type === "normal" && icon !== undefined && (
@@ -49,7 +58,7 @@ export const Chip = ({
       {type === "select" && isSelected === true && (
         <MaterialIcons color={onSurfaceVariant} name="check" size={18} />
       )}
-      <ThemedText>{children}</ThemedText>
+      <ThemedText style={isSelectedTextStyle}>{children}</ThemedText>
     </Pressable>
   );
 };

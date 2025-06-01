@@ -1,12 +1,17 @@
 import { ThemedText } from "@/components/ThemedText";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useIsFocused, useScrollToTop } from "@react-navigation/native";
 import { ThemedView } from "@/components/ThemedView";
 import { ContainerStyles } from "@/constants/Styles";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
-import { Camera, CameraMountError, useCameraPermissions } from "expo-camera";
+import {
+  Camera,
+  CameraMountError,
+  PermissionResponse,
+  useCameraPermissions,
+} from "expo-camera";
 import { AppState, Linking, View } from "react-native";
-import { ThemedButton } from "@/components/Button";
+import { ThemedButton } from "@/components/ThemedButton";
 import { TranslateSheet } from "@/components/TranslateSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
@@ -23,19 +28,33 @@ export default function HomeScreen() {
   const ref = useRef(null);
   const translateSheetRef = useRef<BottomSheetModal>(null);
   const allergyResultSheetRef = useRef<BottomSheetModal>(null);
-  const [isOnboarding, _setIsOnboarding] = useMMKVBoolean("isOnboarding");
+  const [isOnboarding = true, _setIsOnboarding] =
+    useMMKVBoolean("isOnboarding");
+  const [cameraPermission, setCameraPermission] =
+    useState<PermissionResponse | null>(null);
+  const appState = useRef(AppState.currentState);
 
   useEffect(() => {
     const subscription = AppState.addEventListener("change", (nextAppState) => {
-      if (nextAppState === "active") {
-        Camera.getCameraPermissionsAsync();
+      if (
+        appState.current.match(/inactive|background/) &&
+        nextAppState === "active"
+      ) {
+        Camera.getCameraPermissionsAsync().then((permResponse) => {
+          setCameraPermission(permResponse);
+        });
       }
+      appState.current = nextAppState;
     });
 
     return () => {
       subscription.remove();
     };
   }, []);
+
+  useEffect(() => {
+    setCameraPermission(hasPermission);
+  }, [hasPermission]);
 
   const handleError = (error: CameraMountError) => {
     console.log(error.message);
@@ -47,17 +66,13 @@ export default function HomeScreen() {
 
   const handlePermissionButtonPress = async () => {
     if (
-      hasPermission?.status !== "granted" &&
-      hasPermission?.canAskAgain === true
+      cameraPermission?.status !== "granted" &&
+      cameraPermission?.canAskAgain === true
     ) {
       await requestPermission();
     } else {
       await Linking.openSettings();
     }
-  };
-
-  const handleAllergyResultSheetClose = () => {
-    allergyResultSheetRef.current?.dismiss();
   };
 
   const handlePhoto = (photo: {
@@ -71,7 +86,7 @@ export default function HomeScreen() {
 
   useScrollToTop(ref);
 
-  if (isOnboarding === undefined) {
+  if (isOnboarding) {
     return <OnboardingScreen />;
   }
 
@@ -93,10 +108,10 @@ export default function HomeScreen() {
         </ThemedText>
       </ThemedView>
       <ThemedView style={{ flex: 1, gap: 20 }}>
-        {isFocused && hasPermission?.status === "granted" && (
+        {isFocused && cameraPermission?.status === "granted" && (
           <ScanCamera onPhoto={handlePhoto} onMountError={handleError} />
         )}
-        {hasPermission?.status !== "granted" && (
+        {cameraPermission?.status !== "granted" && (
           <View
             style={{
               display: "flex",
@@ -137,10 +152,7 @@ export default function HomeScreen() {
         </ThemedButton>
       </ThemedView>
       <TranslateSheet ref={translateSheetRef} />
-      <AllergyResultSheet
-        ref={allergyResultSheetRef}
-        onFeedback={handleAllergyResultSheetClose}
-      />
+      <AllergyResultSheet ref={allergyResultSheetRef} />
     </ThemedScrollView>
   );
 }

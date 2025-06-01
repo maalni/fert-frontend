@@ -5,7 +5,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemedView } from "@/components/ThemedView";
 import * as ImagePicker from "expo-image-picker";
-import { ThemedText } from "@/components/ThemedText";
+import { ImageManipulator } from "expo-image-manipulator";
 
 type CameraProps = {
   onPhoto: (photo: {
@@ -20,7 +20,7 @@ type CameraProps = {
 export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
   const ref = useRef<CameraView>(null);
 
-  const { primary, onPrimary } = useTheme();
+  const { primary, onPrimary, onSurfaceVariant } = useTheme();
   const [isCameraReady, setIsCameraReady] = useState(false);
   const [isWorking, setIsWorking] = useState(false);
 
@@ -41,13 +41,12 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
       return;
     }
 
-    onPhoto({
+    resizeImage({
       base64: pic.base64,
       uri: pic.uri,
       height: pic.height,
       width: pic.width,
     });
-    setIsWorking(false);
   };
 
   const pickImage = async () => {
@@ -64,12 +63,40 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
       return;
     }
 
-    onPhoto({
+    resizeImage({
       base64: result.assets[0].base64,
       uri: result.assets[0].uri,
       height: result.assets[0].height,
       width: result.assets[0].width,
     });
+  };
+
+  const resizeImage = async (photo: {
+    base64: string;
+    uri: string;
+    height: number;
+    width: number;
+  }) => {
+    const manipulator = ImageManipulator.manipulate(photo.uri);
+
+    if (photo.width > 1024) {
+      manipulator.resize({ width: 1024 });
+    }
+    if (photo.height > 1024) {
+      manipulator.resize({ height: 1024 });
+    }
+
+    const ref = await manipulator.renderAsync();
+    const img = await ref.saveAsync({ base64: true, compress: 0.9 });
+
+    if (img.base64 !== undefined) {
+      onPhoto({
+        base64: img.base64,
+        uri: img.uri,
+        width: img.width,
+        height: img.height,
+      });
+    }
     setIsWorking(false);
   };
 
@@ -90,6 +117,7 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
           }}
           onCameraReady={() => setIsCameraReady(true)}
           onMountError={onMountError}
+          flash={"auto"}
         >
           {isCameraReady && (
             <View
@@ -105,12 +133,12 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
               <View
                 style={{
                   display: "flex",
+                  flex: 1,
                   flexDirection: "row",
-                  justifyContent: "center",
+                  justifyContent: "flex-end",
                   alignItems: "center",
                   padding: 5,
-                  gap: 16,
-                  backgroundColor: onPrimary,
+                  gap: 32,
                   borderRadius: 50,
                 }}
               >
@@ -118,24 +146,37 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
                   onPress={takeImage}
                   disabled={isWorking}
                   style={{
-                    backgroundColor: primary,
+                    backgroundColor: "transparent",
                     borderColor: onPrimary,
                     borderWidth: 2,
-                    width: 60,
-                    height: 60,
+                    width: 80,
+                    height: 80,
                     borderRadius: 80,
-                    display: "flex",
+                    position: "absolute",
+                    left: "50%",
+                    transform: [{ translateX: "-50%" }],
                     alignItems: "center",
                     justifyContent: "center",
                   }}
                 >
-                  <MaterialIcons
-                    name={"photo-camera"}
-                    size={24}
-                    color={onPrimary}
-                  />
+                  <View
+                    style={{
+                      display: "flex",
+                      backgroundColor: onPrimary,
+                      width: 70,
+                      height: 70,
+                      borderRadius: 70,
+                      alignItems: "center",
+                      justifyContent: "center",
+                    }}
+                  >
+                    <MaterialIcons
+                      name="photo-camera"
+                      size={28}
+                      color={onSurfaceVariant}
+                    />
+                  </View>
                 </Pressable>
-                <ThemedText type={"defaultSemiBold"}>or</ThemedText>
                 <Pressable
                   onPress={pickImage}
                   disabled={isWorking}

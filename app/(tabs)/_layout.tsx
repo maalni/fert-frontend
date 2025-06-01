@@ -9,6 +9,8 @@ import { useMMKVBoolean } from "react-native-mmkv";
 
 export default function TabLayout() {
   const { surfaceContainer, onSurfaceVariant, secondaryContainer } = useTheme();
+  const [isOnboarding = true, _setIsOnboarding] =
+    useMMKVBoolean("isOnboarding");
 
   const renderButton = (props: BottomTabBarButtonProps) => {
     return (
@@ -60,8 +62,6 @@ export default function TabLayout() {
     );
   };
 
-  const [isOnboarding, _setIsOnboarding] = useMMKVBoolean("isOnboarding");
-
   return (
     <Tabs
       screenOptions={{
@@ -73,7 +73,7 @@ export default function TabLayout() {
         tabBarInactiveTintColor: onSurfaceVariant,
         headerShown: false,
       }}
-      tabBar={isOnboarding === undefined ? () => null : undefined}
+      tabBar={isOnboarding ? () => null : undefined}
     >
       <Tabs.Screen
         name="index"

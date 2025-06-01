@@ -2,29 +2,39 @@ import { ImageBackground } from "expo-image";
 import { ThemedView } from "@/components/ThemedView";
 import { ThemedText } from "@/components/ThemedText";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
-import { Pressable } from "react-native";
 import { Chip } from "@/components/Chip";
 import { useTheme } from "@/hooks/useTheme";
 import { useState } from "react";
 import { useMMKVObject } from "react-native-mmkv";
+import { Pressable, View } from "react-native";
+import { Allergy } from "@/types/Allergies";
+import { AllergyTranslations } from "@/constants/Translations";
 
 type ScanHistoryEntryProps = {
   name: string;
   img: string;
-  detectedAllergies: string[];
+  detectedAllergies: Allergy[];
+  onDelete: () => void;
 };
 
 export default function ScanHistoryEntry({
   name,
   img,
   detectedAllergies,
+  onDelete,
 }: ScanHistoryEntryProps) {
-  const { primary, onPrimary } = useTheme();
-  const [allergies, _setAllergies] = useMMKVObject<string[]>("allergies");
+  const {
+    primary,
+    onPrimary,
+    errorContainer,
+    onErrorContainer,
+    onSurfaceVariant,
+  } = useTheme();
+  const [allergies = [], _setAllergies] = useMMKVObject<string[]>("allergies");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
-    <Pressable
+    <View
       style={{
         display: "flex",
         flexDirection: "row",
@@ -42,7 +52,7 @@ export default function ScanHistoryEntry({
           alignItems: "center",
           overflow: "hidden",
         }}
-        source={img}
+        source={{ uri: img }}
         onLoad={() => setIsImageLoaded(true)}
       >
         {!isImageLoaded && (
@@ -59,7 +69,7 @@ export default function ScanHistoryEntry({
         }}
       >
         <ThemedText type="subtitle">{name}</ThemedText>
-        <ThemedView
+        <View
           style={{
             display: "flex",
             flexDirection: "row",
@@ -71,13 +81,24 @@ export default function ScanHistoryEntry({
             <Chip
               key={allergy}
               type={"normal"}
-              isSelected={allergies?.includes(allergy)}
+              isSelected={allergies.includes(allergy)}
+              isSelectedViewStyle={{
+                backgroundColor: errorContainer,
+                borderColor: errorContainer,
+              }}
+              isSelectedTextStyle={{ color: onErrorContainer }}
             >
-              {allergy}
+              {AllergyTranslations.english[allergy]}
             </Chip>
           ))}
-        </ThemedView>
+          {detectedAllergies.length === 0 && (
+            <ThemedText>No allergies detected</ThemedText>
+          )}
+        </View>
       </ThemedView>
-    </Pressable>
+      <Pressable onPress={onDelete}>
+        <MaterialIcons name="close" size={24} color={onSurfaceVariant} />
+      </Pressable>
+    </View>
   );
 }

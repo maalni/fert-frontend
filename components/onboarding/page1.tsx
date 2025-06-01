@@ -1,7 +1,7 @@
 import { View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { useTheme } from "@/hooks/useTheme";
-import { ThemedButton } from "@/components/Button";
+import { ThemedButton } from "@/components/ThemedButton";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
 import { ContainerStyles } from "@/constants/Styles";
