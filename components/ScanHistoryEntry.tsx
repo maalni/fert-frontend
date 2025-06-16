@@ -7,21 +7,21 @@ import { useTheme } from "@/hooks/useTheme";
 import { useState } from "react";
 import { useMMKVObject } from "react-native-mmkv";
 import { Pressable, View } from "react-native";
-import { Allergy } from "@/types/Allergies";
 import { AllergyTranslations } from "@/constants/Translations";
+import { Allergy } from "@/types/Allergies";
 
 type ScanHistoryEntryProps = {
   name: string;
   img: string;
   detectedAllergies: Allergy[];
-  onDelete: () => void;
+  onPress: () => void;
 };
 
 export default function ScanHistoryEntry({
   name,
   img,
   detectedAllergies,
-  onDelete,
+  onPress,
 }: ScanHistoryEntryProps) {
   const {
     primary,
@@ -31,15 +31,19 @@ export default function ScanHistoryEntry({
     onSurfaceVariant,
   } = useTheme();
   const [allergies = [], _setAllergies] = useMMKVObject<string[]>("allergies");
+  const [userAllergies = [], _setUserAllergies] =
+    useMMKVObject<string[]>("userAllergies");
   const [isImageLoaded, setIsImageLoaded] = useState(false);
 
   return (
-    <View
+    <Pressable
       style={{
         display: "flex",
         flexDirection: "row",
         gap: 16,
+        alignItems: "center",
       }}
+      onPress={onPress}
     >
       <ImageBackground
         style={{
@@ -81,14 +85,18 @@ export default function ScanHistoryEntry({
             <Chip
               key={allergy}
               type={"normal"}
-              isSelected={allergies.includes(allergy)}
+              isSelected={
+                allergies.includes(allergy) || userAllergies.includes(allergy)
+              }
               isSelectedViewStyle={{
                 backgroundColor: errorContainer,
                 borderColor: errorContainer,
               }}
               isSelectedTextStyle={{ color: onErrorContainer }}
             >
-              {AllergyTranslations.english[allergy]}
+              {AllergyTranslations.english[allergy] !== undefined
+                ? AllergyTranslations.english[allergy]
+                : allergy}
             </Chip>
           ))}
           {detectedAllergies.length === 0 && (
@@ -96,9 +104,7 @@ export default function ScanHistoryEntry({
           )}
         </View>
       </ThemedView>
-      <Pressable onPress={onDelete}>
-        <MaterialIcons name="close" size={24} color={onSurfaceVariant} />
-      </Pressable>
-    </View>
+      <MaterialIcons name="chevron-right" size={24} color={onSurfaceVariant} />
+    </Pressable>
   );
 }

@@ -104,7 +104,12 @@ export default function OnboardingPage1({ onPage }: OnboardingPage1Props) {
           </View>
         </View>
       </View>
-      <ThemedButton type={"small"} onPress={onPage}>
+      <ThemedButton
+        type={"small"}
+        onPress={onPage}
+        iconSide={"right"}
+        icon={"chevron-right"}
+      >
         Continue
       </ThemedButton>
     </ThemedScrollView>

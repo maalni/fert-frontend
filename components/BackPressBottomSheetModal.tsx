@@ -1,6 +1,6 @@
 import { BottomSheetModal, BottomSheetModalProps } from "@gorhom/bottom-sheet";
 import {
-  forwardRef,
+  RefAttributes,
   useCallback,
   useEffect,
   useImperativeHandle,
@@ -9,11 +9,12 @@ import {
 } from "react";
 import { BackHandler } from "react-native";
 
-// eslint-disable-next-line react/display-name
-export const BackPressBottomSheetModal = forwardRef<
-  BottomSheetModal | null,
-  BottomSheetModalProps
->(({ children, onChange, ...restProps }, forwardedRef) => {
+export const BackPressBottomSheetModal = <T,>({
+  children,
+  onChange,
+  ref,
+  ...restProps
+}: BottomSheetModalProps<T> & RefAttributes<BottomSheetModal>) => {
   const [currentIndex, setCurrentIndex] = useState<number>(-1);
   const modalRef = useRef<BottomSheetModal>(null);
 
@@ -35,7 +36,7 @@ export const BackPressBottomSheetModal = forwardRef<
   useImperativeHandle<
     BottomSheetModal | null,
     BottomSheetModal | null
-  >(forwardedRef, () => {
+  >(ref, () => {
     return modalRef.current;
   }, [modalRef]);
 
@@ -51,4 +52,4 @@ export const BackPressBottomSheetModal = forwardRef<
       {children}
     </BottomSheetModal>
   );
-});
+};

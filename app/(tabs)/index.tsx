@@ -12,7 +12,6 @@ import {
 } from "expo-camera";
 import { AppState, Linking, View } from "react-native";
 import { ThemedButton } from "@/components/ThemedButton";
-import { TranslateSheet } from "@/components/TranslateSheet";
 import { BottomSheetModal } from "@gorhom/bottom-sheet";
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
@@ -20,13 +19,13 @@ import { ScanCamera } from "@/components/ScanCamera";
 import { AllergyResultSheet } from "@/components/AllergyResultSheet";
 import { useMMKVBoolean } from "react-native-mmkv";
 import OnboardingScreen from "@/components/onboarding/screen";
+import { Photo } from "@/types/Photo";
 
 export default function HomeScreen() {
   const { onSurfaceVariant } = useTheme();
   const [hasPermission, requestPermission] = useCameraPermissions();
   const isFocused = useIsFocused();
   const ref = useRef(null);
-  const translateSheetRef = useRef<BottomSheetModal>(null);
   const allergyResultSheetRef = useRef<BottomSheetModal>(null);
   const [isOnboarding = true, _setIsOnboarding] =
     useMMKVBoolean("isOnboarding");
@@ -60,10 +59,6 @@ export default function HomeScreen() {
     console.log(error.message);
   };
 
-  const handleButtonPress = () => {
-    translateSheetRef.current?.present();
-  };
-
   const handlePermissionButtonPress = async () => {
     if (
       cameraPermission?.status !== "granted" &&
@@ -75,12 +70,7 @@ export default function HomeScreen() {
     }
   };
 
-  const handlePhoto = (photo: {
-    base64: string;
-    uri: string;
-    height: number;
-    width: number;
-  }) => {
+  const handlePhoto = (photo: Photo) => {
     allergyResultSheetRef.current?.present(photo);
   };
 
@@ -142,16 +132,7 @@ export default function HomeScreen() {
           </View>
         )}
       </ThemedView>
-      <ThemedView>
-        <ThemedButton
-          icon="question-answer"
-          onPress={handleButtonPress}
-          type="small"
-        >
-          Ask the waiter
-        </ThemedButton>
-      </ThemedView>
-      <TranslateSheet ref={translateSheetRef} />
+
       <AllergyResultSheet ref={allergyResultSheetRef} />
     </ThemedScrollView>
   );

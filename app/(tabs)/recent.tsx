@@ -1,7 +1,7 @@
 import { ThemedText } from "@/components/ThemedText";
 import { ThemedView } from "@/components/ThemedView";
 import { useScrollToTop } from "@react-navigation/native";
-import { useEffect, useRef, useState } from "react";
+import { useMemo, useRef } from "react";
 import { ContainerStyles } from "@/constants/Styles";
 import ScanHistoryEntry from "@/components/ScanHistoryEntry";
 import { ThemedScrollView } from "@/components/ThemedScrollView";
@@ -12,17 +12,17 @@ import { router } from "expo-router";
 import { useTheme } from "@/hooks/useTheme";
 import { useMMKVObject } from "react-native-mmkv";
 import { ScanHistory } from "@/types/ScanHistory";
+import { HistoryEntrySheet } from "@/components/HistoryEntrySheet";
+import { BottomSheetModal } from "@gorhom/bottom-sheet";
 
 export default function RecentScreen() {
   const ref = useRef(null);
+  const historyEntrySheetRef = useRef<BottomSheetModal>(null);
   const { onSurfaceVariant } = useTheme();
   const [scanHistory = [], setScanHistory] =
     useMMKVObject<ScanHistory[]>("scanHistory");
-  const [groupedScanHistory, setGroupedScanHistory] = useState<{
-    [key in string]?: ScanHistory[];
-  }>({});
 
-  useEffect(() => {
+  const groupedScanHistory = useMemo(() => {
     let temp: { [key in string]?: ScanHistory[] } = {};
 
     scanHistory.forEach((entry) => {
@@ -38,7 +38,7 @@ export default function RecentScreen() {
       temp[date].push(entry);
     });
 
-    setGroupedScanHistory(temp);
+    return temp;
   }, [scanHistory]);
 
   useScrollToTop(ref);
@@ -48,7 +48,12 @@ export default function RecentScreen() {
   };
 
   const handleDeleteButtonPress = (id: string) => {
+    historyEntrySheetRef.current?.dismiss();
     setScanHistory(scanHistory.filter((entry) => entry.scanDate !== id));
+  };
+
+  const openHistorySheet = (entry: ScanHistory) => {
+    historyEntrySheetRef.current?.present(entry);
   };
 
   return (
@@ -75,15 +80,13 @@ export default function RecentScreen() {
               <ThemedText type="subtitle">{date}</ThemedText>
               <View style={{ display: "flex", gap: 8 }}>
                 {groupedScanHistory[date]?.map((entry) => (
-                  <>
-                    <ScanHistoryEntry
-                      key={`${entry.scanDate}-${entry.name}`}
-                      name={entry.name}
-                      img={entry.img}
-                      detectedAllergies={entry.detectedAllergies}
-                      onDelete={() => handleDeleteButtonPress(entry.scanDate)}
-                    />
-                  </>
+                  <ScanHistoryEntry
+                    key={`${entry.scanDate}-${entry.name}`}
+                    name={entry.name}
+                    img={entry.img}
+                    detectedAllergies={entry.detectedAllergies}
+                    onPress={() => openHistorySheet(entry)}
+                  />
                 ))}
               </View>
             </ThemedView>
@@ -117,7 +120,7 @@ export default function RecentScreen() {
             <ThemedText type={"subtitle"}>
               Scan to unlock your history
             </ThemedText>
-            <ThemedText style={{ textAlign: "justify" }}>
+            <ThemedText style={{ textAlign: "center" }}>
               You need to scan food items first in order to view your scan
               history.
             </ThemedText>
@@ -131,6 +134,10 @@ export default function RecentScreen() {
           </ThemedButton>
         </View>
       )}
+      <HistoryEntrySheet
+        ref={historyEntrySheetRef}
+        onDelete={handleDeleteButtonPress}
+      />
     </ThemedScrollView>
   );
 }

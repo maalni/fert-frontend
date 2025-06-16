@@ -1,4 +1,4 @@
-import { Pressable, PressableProps, StyleSheet, ViewStyle } from "react-native";
+import { Pressable, PressableProps, StyleSheet } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
 import { ComponentProps, PropsWithChildren } from "react";
 import { useTheme } from "@/hooks/useTheme";
@@ -6,25 +6,44 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 
 type ButtonProps = PressableProps & {
   icon?: ComponentProps<typeof MaterialIcons>["name"];
+  iconSide?: "left" | "right";
   type?: "small" | "medium";
-  style?: ViewStyle;
 };
 
 export const ThemedButton = ({
   icon,
   type = "medium",
+  iconSide = "left",
   style,
   children,
+  disabled,
   ...otherProps
 }: PropsWithChildren<ButtonProps>) => {
   const { primary, onPrimary, surfaceContainer, onSurfaceVariant } = useTheme();
 
+  const newShade = (hexColor: string, magnitude: number) => {
+    hexColor = hexColor.replace(`#`, ``);
+    if (hexColor.length === 6) {
+      const decimalColor = parseInt(hexColor, 16);
+      let r = (decimalColor >> 16) + magnitude;
+      r > 255 && (r = 255);
+      r < 0 && (r = 0);
+      let g = (decimalColor & 0x0000ff) + magnitude;
+      g > 255 && (g = 255);
+      g < 0 && (g = 0);
+      let b = ((decimalColor >> 8) & 0x00ff) + magnitude;
+      b > 255 && (b = 255);
+      b < 0 && (b = 0);
+      return `#${(g | (b << 8) | (r << 16)).toString(16)}`;
+    } else {
+      return hexColor;
+    }
+  };
+
   return (
     <Pressable
-      style={[
+      style={(state) => [
         {
-          backgroundColor:
-            otherProps.disabled === true ? surfaceContainer : primary,
           display: "flex",
           flexDirection: "row",
           justifyContent: "center",
@@ -32,24 +51,38 @@ export const ThemedButton = ({
         },
         type === "small" ? ButtonStyles.small : undefined,
         type === "medium" ? ButtonStyles.medium : undefined,
-        style,
+        state.pressed
+          ? { backgroundColor: newShade(primary, -25) }
+          : {
+              backgroundColor: disabled
+                ? newShade(surfaceContainer, 50)
+                : primary,
+            },
+        typeof style === "function" ? style(state) : style,
       ]}
       {...otherProps}
     >
-      {icon !== undefined && (
+      {icon !== undefined && iconSide === "left" && (
         <MaterialIcons
-          color={otherProps.disabled === true ? onSurfaceVariant : onPrimary}
+          color={disabled === true ? onSurfaceVariant : onPrimary}
           name={icon}
           size={20}
         />
       )}
       <ThemedText
         style={{
-          color: otherProps.disabled === true ? onSurfaceVariant : onPrimary,
+          color: disabled === true ? onSurfaceVariant : onPrimary,
         }}
       >
         {children}
       </ThemedText>
+      {icon !== undefined && iconSide === "right" && (
+        <MaterialIcons
+          color={disabled === true ? onSurfaceVariant : onPrimary}
+          name={icon}
+          size={20}
+        />
+      )}
     </Pressable>
   );
 };

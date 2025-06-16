@@ -83,6 +83,13 @@ export default function TabLayout() {
         }}
       />
       <Tabs.Screen
+        name="ask"
+        options={{
+          title: "Ask the waiter",
+          tabBarIcon: (props) => renderTabBarIcon(props, "question-answer"),
+        }}
+      />
+      <Tabs.Screen
         name="recent"
         options={{
           title: "Recent",
@@ -101,6 +108,9 @@ export default function TabLayout() {
         options={{
           title: "Settings",
           tabBarIcon: (props) => renderTabBarIcon(props, "bug-report"),
+          tabBarItemStyle: {
+            display: "none",
+          },
         }}
       />
     </Tabs>

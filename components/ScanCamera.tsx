@@ -5,7 +5,7 @@ import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { useTheme } from "@/hooks/useTheme";
 import { ThemedView } from "@/components/ThemedView";
 import * as ImagePicker from "expo-image-picker";
-import { ImageManipulator } from "expo-image-manipulator";
+import { ImageManipulator, SaveFormat } from "expo-image-manipulator";
 
 type CameraProps = {
   onPhoto: (photo: {
@@ -32,17 +32,14 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
       return;
     }
 
-    const pic = await ref.current.takePictureAsync({
-      base64: true,
-    });
+    const pic = await ref.current.takePictureAsync();
 
-    if (pic === undefined || pic.base64 === undefined) {
+    if (pic === undefined) {
       setIsWorking(false);
       return;
     }
 
-    resizeImage({
-      base64: pic.base64,
+    await resizeImage({
       uri: pic.uri,
       height: pic.height,
       width: pic.width,
@@ -55,16 +52,14 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ["images"],
       quality: 1,
-      base64: true,
     });
 
-    if (result.canceled || !result.assets[0].base64) {
+    if (result.canceled || result.assets[0] === undefined) {
       setIsWorking(false);
       return;
     }
 
-    resizeImage({
-      base64: result.assets[0].base64,
+    await resizeImage({
       uri: result.assets[0].uri,
       height: result.assets[0].height,
       width: result.assets[0].width,
@@ -72,7 +67,6 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
   };
 
   const resizeImage = async (photo: {
-    base64: string;
     uri: string;
     height: number;
     width: number;
@@ -87,7 +81,11 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
     }
 
     const ref = await manipulator.renderAsync();
-    const img = await ref.saveAsync({ base64: true, compress: 0.9 });
+    const img = await ref.saveAsync({
+      base64: true,
+      compress: 0.9,
+      format: SaveFormat.JPEG,
+    });
 
     if (img.base64 !== undefined) {
       onPhoto({
@@ -97,6 +95,7 @@ export const ScanCamera = ({ onPhoto, onMountError }: CameraProps) => {
         height: img.height,
       });
     }
+
     setIsWorking(false);
   };
 

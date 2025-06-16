@@ -1,6 +1,6 @@
 import { View } from "react-native";
 import { ThemedText } from "@/components/ThemedText";
-import Progress from "react-native-progress";
+import * as Progress from "react-native-progress";
 import { useTheme } from "@/hooks/useTheme";
 import { useEffect, useState } from "react";
 import { useMMKVObject } from "react-native-mmkv";
@@ -14,27 +14,25 @@ export const RiskMeter = ({ detectedAllergies }: RiskMeterProps) => {
   const { green, yellow, red } = useTheme();
   const [risk, setRisk] = useState<"low" | "moderate" | "high">("low");
   const [allergies = [], _setAllergies] = useMMKVObject<string[]>("allergies");
+  const [userAllergies = [], _setUserAllergies] =
+    useMMKVObject<string[]>("userAllergies");
 
   useEffect(() => {
-    let count = 0;
-
-    detectedAllergies.forEach((da) => {
-      if (allergies.includes(da)) {
-        count++;
-      }
+    const isUserAllergy = detectedAllergies.some((da) => {
+      return allergies.includes(da) || userAllergies.includes(da);
     });
 
     switch (true) {
-      case count === 0 && detectedAllergies.length === 0:
+      case !isUserAllergy && detectedAllergies.length === 0:
         setRisk("low");
         break;
-      case count === 0 && detectedAllergies.length > 0:
+      case !isUserAllergy && detectedAllergies.length > 0:
         setRisk("moderate");
         break;
-      case count > 0:
+      case isUserAllergy:
         setRisk("high");
     }
-  }, [allergies, detectedAllergies]);
+  }, [allergies, detectedAllergies, userAllergies]);
 
   return (
     <View

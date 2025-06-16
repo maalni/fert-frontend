@@ -36,6 +36,7 @@ import { Allergy } from "@/types/Allergies";
 import { isBackendResponse } from "@/types/BackendResponse";
 import { AllergyTranslations } from "@/constants/Translations";
 import { RiskMeter } from "@/components/RiskMeter";
+import { Photo } from "@/types/Photo";
 
 // eslint-disable-next-line react/display-name
 export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
@@ -54,6 +55,8 @@ export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
     const bottomSheetModal = useBottomSheetModal();
     const [allergies = [], _setAllergies] =
       useMMKVObject<string[]>("allergies");
+    const [userAllergies = [], _setUserAllergies] =
+      useMMKVObject<string[]>("userAllergies");
     const [scanHistory = [], setScanHistory] =
       useMMKVObject<ScanHistory[]>("scanHistory");
     const [positiveFeedback = 0, setPositiveFeedback] =
@@ -96,7 +99,9 @@ export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
             text:
               "You will receive an image of a meal. Please return only a parsable json object containing the following: " +
               "1. a string called name that contains the name of the meal as a string. " +
-              "2. a string list called detectedAllergies that contains only the allergens from this exact list: milk, eggs, fish, shellfish, treeNuts, peanuts, wheat, soybeans, sesame. Only include items from this list and nothing else. " +
+              "2. a string list called detectedAllergies that contains only the allergens from this exact list: milk, eggs, fish, shellfish, treeNuts, peanuts, wheat, soybeans, sesame ," +
+              userAllergies.join(" ,") +
+              ". Only include items from this list and nothing else. " +
               "Do not explain anything. Just output the name and the list.",
           },
         ];
@@ -233,7 +238,7 @@ export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
     }, [rotate, scale]);
 
     return (
-      <BackPressBottomSheetModal
+      <BackPressBottomSheetModal<Photo>
         ref={ref}
         style={{ backgroundColor: surfaceContainer, borderRadius: 50 }}
         handleIndicatorStyle={{ backgroundColor: onSurfaceVariant }}
@@ -252,6 +257,10 @@ export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
         )}
       >
         {(data) => {
+          if (data.data === undefined) {
+            return null;
+          }
+
           setPhoto(data.data);
 
           return (
@@ -312,14 +321,19 @@ export const AllergyResultSheet = forwardRef<BottomSheetModal, any>(
                           <Chip
                             key={allergy}
                             type={"normal"}
-                            isSelected={allergies.includes(allergy)}
+                            isSelected={
+                              allergies.includes(allergy) ||
+                              userAllergies.includes(allergy)
+                            }
                             isSelectedViewStyle={{
                               backgroundColor: errorContainer,
                               borderColor: errorContainer,
                             }}
                             isSelectedTextStyle={{ color: onErrorContainer }}
                           >
-                            {AllergyTranslations.english[allergy]}
+                            {AllergyTranslations.english[allergy] !== undefined
+                              ? AllergyTranslations.english[allergy]
+                              : allergy}
                           </Chip>
                         ))}
                       </View>

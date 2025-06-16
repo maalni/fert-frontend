@@ -1,3 +1,12 @@
+export type Languages =
+  | "chinese"
+  | "korean"
+  | "german"
+  | "hindi"
+  | "french"
+  | "japanese"
+  | undefined;
+
 export const AllergyTranslations = {
   chinese: {
     start: "這道菜含有 ",
@@ -12,6 +21,8 @@ export const AllergyTranslations = {
     sesame: "芝麻",
     or: " 還是 ",
     end: " 嗎?",
+    yes: "是的",
+    no: "不",
   },
   french: {
     start: "Ce plat contient-il ",
@@ -26,6 +37,8 @@ export const AllergyTranslations = {
     sesame: "sésame",
     or: " ou ",
     end: "?",
+    yes: "Oui",
+    no: "Non",
   },
   german: {
     start: "Enthält dieses Gericht ",
@@ -40,6 +53,8 @@ export const AllergyTranslations = {
     sesame: "Sesam",
     or: " oder ",
     end: "?",
+    yes: "Ja",
+    no: "Nein",
   },
   hindi: {
     start: "क्या इस व्यंजन में ",
@@ -54,6 +69,8 @@ export const AllergyTranslations = {
     sesame: "तिल",
     or: " या ",
     end: "है?",
+    yes: "हाँ",
+    no: "नहीं",
   },
   japanese: {
     start: "この料理には ",
@@ -68,6 +85,8 @@ export const AllergyTranslations = {
     sesame: "ゴマ",
     or: " それとも ",
     end: " が含まれていますか?",
+    yes: "はい",
+    no: "いいえ",
   },
   korean: {
     start: "이 요리에는 ",
@@ -82,6 +101,8 @@ export const AllergyTranslations = {
     sesame: "참깨",
     or: " 또는 ",
     end: " 가 들어있나요?",
+    yes: "네",
+    no: "아니요",
   },
   english: {
     start: "Does this dish contain ",
@@ -96,5 +117,7 @@ export const AllergyTranslations = {
     sesame: "Sesame",
     or: " or ",
     end: "?",
+    yes: "yes",
+    no: "no",
   },
 };
