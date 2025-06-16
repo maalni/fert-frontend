@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "fert",
-    "slug": "fert",
+    "name": "Allerio",
+    "slug": "allerio",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "fert",
+    "scheme": "allerio",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -17,7 +17,7 @@
         "backgroundColor": "#ffffff"
       },
       "edgeToEdgeEnabled": true,
-      "package": "com.anonymous.fert"
+      "package": "dev.maalni.allerio"
     },
     "web": {
       "bundler": "metro",

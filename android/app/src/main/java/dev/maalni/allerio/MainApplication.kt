@@ -1,4 +1,4 @@
-package com.anonymous.fert
+package dev.maalni.allerio
 
 import android.app.Application
 import android.content.res.Configuration

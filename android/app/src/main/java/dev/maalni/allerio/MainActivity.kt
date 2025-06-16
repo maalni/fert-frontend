@@ -1,4 +1,4 @@
-package com.anonymous.fert
+package dev.maalni.allerio
 import expo.modules.splashscreen.SplashScreenManager
 
 import android.os.Build

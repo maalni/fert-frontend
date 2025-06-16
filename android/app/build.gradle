@@ -87,9 +87,9 @@ android {
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
 
-    namespace 'com.anonymous.fert'
+    namespace 'dev.maalni.allerio'
     defaultConfig {
-        applicationId 'com.anonymous.fert'
+        applicationId 'dev.maalni.allerio'
         minSdkVersion rootProject.ext.minSdkVersion
         targetSdkVersion rootProject.ext.targetSdkVersion
         versionCode 1

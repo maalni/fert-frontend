@@ -36,7 +36,7 @@ export default function OnboardingPage1({ onPage }: OnboardingPage1Props) {
       </View>
       <View style={ContainerStyles.title}>
         <ThemedText type={"title"} style={{}}>
-          Food allergy scanner
+          Allerio
         </ThemedText>
       </View>
       <View style={{ display: "flex", flex: 1, gap: 32 }}>
